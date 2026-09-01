@@ -9,10 +9,17 @@ async function main() {
   fs.rmSync(baseDir, { force: true, recursive: true });
   fs.mkdirSync(baseDir);
 
-  let code = `import { bench } from 'vitest';\n`;
+  let code = `import { test } from 'vitest';\n\n`;
+  code += `test('benchmarks', async ({ bench }) => {\n`;
+  code += `  await bench.compare(\n`;
+
   for (let i = 0; i < NUM_CASES; i++) {
-    code += `bench('case ${i}', () => {}, { iterations: 1_000_000, time: 0 });\n`;
+    code += `    bench("case ${i}", () => {}),\n`;
   }
+
+  code += `    { iterations: 1_000_000, time: 0 },\n`;
+  code += `  );\n`;
+  code += `});\n`;
 
   for (let i = 0; i < NUM_FILES; i++) {
     fs.writeFileSync(path.join(baseDir, `${i}.bench.js`), code);
